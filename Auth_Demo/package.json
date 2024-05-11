@@ -9,6 +9,7 @@
   "author": "Arindam Majumder",
   "license": "ISC",
   "dependencies": {
+    "@cerbos/grpc": "^0.17.1",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
