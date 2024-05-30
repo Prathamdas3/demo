@@ -1,6 +1,5 @@
 const { GRPC } = require('@cerbos/grpc')
 const cerbos = new GRPC('localhost:3593', { tls: false })
-const Blog = require('../models/Blog')
 
 /**
  * This function converts a JWT (JSON Web Token) to a principal object.

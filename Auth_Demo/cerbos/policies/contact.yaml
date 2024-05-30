@@ -3,7 +3,7 @@ resourcePolicy:
   resource: basicResource
   version: default
   rules:
-    - actions: ['read']
+    - actions: ['read', 'readAll']
       roles:
         - admin
         - user

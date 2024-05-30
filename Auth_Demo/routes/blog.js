@@ -2,12 +2,6 @@ const express = require('express')
 const Blog = require('../models/Blog')
 const router = express.Router()
 const verifyJWT = require('../middleware/user.js')
-const {
-  readAccess,
-  writeAccess,
-  updateAccess,
-  deleteAccess,
-} = require('../middleware/access.js')
 const { GRPC } = require('@cerbos/grpc')
 const cerbos = new GRPC('localhost:3593', { tls: false })
 const jwtToPrincipal = ({ id, iat, roles = [], ...rest }) => {
@@ -34,6 +28,35 @@ const getBlog = async (req, res) => {
         attributes: blog,
       },
       actions: ['read'],
+    })
+
+    if (decision.isAllowed('read')) {
+      return res
+        .json({ message: 'Successful', blog, success: true })
+        .status(200)
+    } else {
+      return res.status(403).json({ error: 'Unauthorized' })
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+const getBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({})
+    if (!blogs) {
+      return res.status(404).json({ error: 'Contact not found' })
+    }
+    const decision = await cerbos.checkResources({
+      principal: jwtToPrincipal(req.user),
+      resources: blogs.map((blog) => ({
+        resource: {
+          kind: 'blog',
+          id: blog.id,
+          attributes: blog,
+        },
+        actions: ['readAll'],
+      })),
     })
 
     if (decision.isAllowed('read')) {
@@ -147,6 +170,8 @@ const deleteBlog = async (req, res) => {
     console.error(error)
   }
 }
+
+router.route('/getBlogs').get(getBlogs)
 
 router.route('/getBlog/:id').get(getBlog)
 
